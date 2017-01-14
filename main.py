@@ -1,4 +1,5 @@
 import os
+import sys
 from time import sleep
 
 from mac_writer import MacWriter
@@ -21,20 +22,25 @@ tested = 1
 def main():
     
     while True:
+        cleanup()     # clear screen before test
+
         while True:
             start()
             
             input_sn()
 
             if check_sn_mac() == FAIL:
+                end()
                 break
 
             if check_login() == FAIL:
+                end()
                 break
 
             write_macs()
 
             if update_db() == FAIL:
+                end()
                 break
 
             reboot()
@@ -43,67 +49,77 @@ def main():
 
             break
 
+
 def start():
     global tested
-    print("\n\nTEST STARTING...\t\tNO.\t%s" % tested)
+
+    print("\n\nTEST STARTING...\tNO. %s" % tested)
+    print("\n(input 'exit' to end program)\t")
     tested += 1
-    '''
-    try:
-        writer.write(b'reboot\n')
-    except: pass
-    '''
 
 
 def input_sn():
     global sn
-    sn = input("\nInput sn\t:")
+    sn = input("Input sn\t:")
+    sn = sn.strip()
+
+    if sn.lower().strip() == 'exit':
+        print("\nprogram ending...")
+        sleep(2)
+        sys.exit(0)
     while len(sn) != 16:
         sn = input("Wrong sn!\nInput again\t:")
+        sn = sn.strip()
 
 
 def check_login():
-    print("\ntrying to connect to host...")
-    for i in range(5):
+    print("\nconnecting to host...")
+    for i in range(10):
         if writer.login():
+            print("connect OK\nlogin OK")
             return PASS
         else:
-            print("retry", str(i+1))
+            print("retry+" + str(i+1))
             sleep(1)
     print("\nconnect to host FAIL\n\nTEST FAILED!")
+    sleep(3)
     return FAIL
 
 
 def check_sn_mac():
-    print("\nchecking sn and mac...")
-    #global sn
-    global macs
-
     record = db_connector.get_record(sn)
     if record == None:
-        print("sn %s NOT FOUND" % sn)
+        print("sn %s NOT FOUND!" % sn)
+        sleep(3)
         return FAIL
     elif record[-1] == 'used':
-        print("sn %s already USED")
+        print("sn %s already USED!" % sn)
+        sleep(3)
         return FAIL
+    print("%s found, sn OK" % sn)
 
-    if TEST_MAC:
+    if CHECK_MAC:
         get_macs()
-        #print(macs)
-        if len(macs) != 3:
+        print("\nchecking mac...")
+        if len(set(macs)) != 3:
             print("INVALID macs! please check.")
             return FAIL
+            sleep(3)
         elif record[2] != macs[0]:
-            print("wlan_mac %s not match db mac %s" 
+            print("wlan_mac %s NOT MATCH db mac! %s" 
                     % (macs[0], record[2]))
+            sleep(3)
             return FAIL
         elif record[3] != macs[1]:
-            print("lan_mac %s not match db mac %s"
+            print("lan_mac %s NOT MATCH db mac! %s"
                     % (macs[1], record[2]))
             return FAIL
+            sleep(3)
         elif record[4] != macs[2]:
-            print("wan_mac %s not match db mac %s"
+            print("wan_mac %s NOT MATCH db mac! %s"
                     % (macs[2], record[4]))
             return FAIL
+            sleep(3)
     else:
         macs[0] = record[2]
         macs[1] = record[3]
@@ -119,7 +135,7 @@ def write_macs():
     lan_mac  = macs[1]
     wan_mac  = macs[2]
 
-    print('-' * 16, 'SN & MAC', '-' * 16, '')
+    print('\n' + '-' * 16, 'SN & MAC', '-' * 16, '')
     print("SN      \t=>\t%s" % sn)
     print("WLAN_MAC\t=>\t%s" % wlan_mac)
     print("LAN_MAC \t=>\t%s" % lan_mac)
@@ -154,33 +170,26 @@ def reboot():
 
 
 def end():
-    cleanup()
-    print("\n\nTEST ENDS")
+    print("\n\nTEST ENDING...")
     print("\ntest will restart in 3 secs")
-    print("\n333")
     sleep(1)
-    print("\n22")
+    print("\n2")
     sleep(1)
     print("\n1")
     sleep(1)
     print("\n0")
+    sleep(2)
+    cleanup()
 
 
 def input_mac(prompt):
     mac = input("\nInput " + prompt + "\t:")
     while len(mac) != 12:
         mac = input("Wrong mac!\nInput again\t:")
-    return mac
+    return mac.strip().upper()
 
 
 def get_macs():
-    '''
-    mac_set = set()
-    mac_set.add(input_mac('wlan_mac'))
-    mac_set.add(input_mac('lan_mac'))
-    mac_set.add(input_mac('wan_mac'))
-    return list(mac_set)
-    '''
     macs[0] = input_mac('wlan_mac')
     macs[1] = input_mac('lan_mac')
     macs[2] = input_mac('wan_mac')
@@ -223,6 +232,18 @@ def cleanup():
     global macs
     sn = ''
     macs = ['', '', '']
+    clear_screen()
+
+
+def clear_screen():
+    if CLEAR_SCREEN:
+        if sys.platform == 'linux':
+            os.system('clear')
+        elif sys.platform == 'win32':
+            os.system('cls')
+        else: #for unkown platform
+            pass
+
 
 
 if __name__ == '__main__':

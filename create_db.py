@@ -9,7 +9,7 @@ def create_sn_mac_db():
     it could be removed once the datas had been stored.
     however it is kept for reuse in case of adding new data.
     '''
-    conn = sqlite3.connect('sn.db') # database 'name sn.db' 
+    conn = sqlite3.connect('sn.db') # database name 'sn.db' 
     curs = conn.cursor()
 
     curs.execute(       # table name 'sn'

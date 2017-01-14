@@ -27,7 +27,6 @@ class MacParser:
             yield sub_sn
 
 
-
 class MacWriter(Telnet, MacParser):
     
     def __init__(self, host='192.168.8.1',
@@ -46,60 +45,74 @@ class MacWriter(Telnet, MacParser):
         try:
             self.open(self.host)
         except:
-            print("can't not connect to host! please check network.")
             return False
 
-        self.read_until(b'login: ')
-        self.write(self.user.encode('ascii') + b'\n')
-        self.read_until(b'Password: ')
-        self.write(self.passwd.encode('ascii') + b'\n')
-
-        result = self.read_until(b'#')
-
-        if result.decode('ascii') != '':
-            print('\nlogin OK')
-            return True
-        else:
-            print('login FAIL! please check user and password')
+        try:
+            self.read_until(b'login: ')
+            self.write(self.user.encode('ascii') + b'\n')
+            self.read_until(b'Password: ')
+            self.write(self.passwd.encode('ascii') + b'\n')
+        except:
             return False
-
+        
+        return True
 
     def write_wlan_mac(self, mac):
         result = self.parse_mac(mac)
         self.write((WLAN_COMMAND_1 % next(result)).encode('ascii'))
+        sleep(0.2)
         self.write((WLAN_COMMAND_2 % next(result)).encode('ascii'))
+        sleep(0.2)
         self.write((WLAN_COMMAND_3 % next(result)).encode('ascii'))
+        sleep(0.2)
 
     def write_lan_mac(self, mac):
         result = self.parse_mac(mac)
         self.write((LAN_COMMAND_1 % next(result)).encode('ascii'))
+        sleep(0.2)
         self.write((LAN_COMMAND_2 % next(result)).encode('ascii'))
+        sleep(0.2)
         self.write((LAN_COMMAND_3 % next(result)).encode('ascii'))
+        sleep(0.2)
 
     def write_wan_mac(self, mac):
         result = self.parse_mac(mac)
         self.write((WAN_COMMAND_1 % next(result)).encode('ascii'))
+        sleep(0.2)
         self.write((WAN_COMMAND_2 % next(result)).encode('ascii'))
+        sleep(0.2)
         self.write((WAN_COMMAND_3 % next(result)).encode('ascii'))
+        sleep(0.2)
 
     def write_sn(self, sn):
         result = self.parse_sn(sn)
         self.write((SN_COMMAND_1 % next(result)).encode('ascii'))
+        sleep(0.2)
         self.write((SN_COMMAND_2 % next(result)).encode('ascii'))
+        sleep(0.2)
         self.write((SN_COMMAND_3 % next(result)).encode('ascii'))
+        sleep(0.2)
         self.write((SN_COMMAND_4 % next(result)).encode('ascii'))
+        sleep(0.2)
 
         self.write(b'. / LoadDefault\n')
 
     def reboot(self):
-        if VERBOSE or LOG:
+        # the 'if' blocks should be placed in main
+        if VERBOSE or LOG:      
+            self.read_until(b'\r\n\r\n\r\n') # remove newlines
             text = self.read_until(b'Default').decode()
             if VERBOSE:
                 print('\n' + '*' * 16 + 'SHELL VIEW' + '*' * 16 + '\n')
                 print(text)
                 print('\n' + '*' * 42 + '\n')
+                print('\nwait...')
                 sleep(3)
             self.write(b'reboot\n')
             return text
-
-        self.write(b'reboot\n')
+        
+        if AUTO_REBOOT:
+            self.write(b'reboot\n')
+        else:
+            self.write(b'exit\n')
+            self.close()

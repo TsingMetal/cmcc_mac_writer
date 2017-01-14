@@ -16,23 +16,31 @@ USER   = 'root'
 PASSWD = 'taZz@01'    
 
 ### whether to show details of test  ###
-### 1 to show, 0 to not. default not ###
-VERBOSE = 1
+### 1 to show, 0 to not. default 0   ###
+VERBOSE = 0
+
+### whether to clear screen after each test ###
+### 1 to clear, 0 to not, default 0         ###
+CLEAR_SCREEN = 1
 
 ### whether to log test infomation  ###
-### 1 to log, 0 to not. default not ###
+### 1 to log, 0 to not. default 0   ###
 LOG = 0
 
 ### whether to verify macs ###
 ### 1 to verify, 0 to not  ###
-TEST_MAC = 1
+CHECK_MAC = 0
+
+### whether to reboot device after test ###
+### 1 to reboot, 0 to not, default not  ###
+AUTO_REBOOT = 0
 
 ### wlan mac writing commands ###
 WLAN_COMMAND_1  = 'iwpriv ra0 e2p 04=%s\n'
 WLAN_COMMAND_2  = 'iwpriv ra0 e2p 06=%s\n'
 WLAN_COMMAND_3  = 'iwpriv ra0 e2p 08=%s\n'
 
-### lan mac wringing commands ###
+### lan mac wrinting commands ###
 LAN_COMMAND_1   = 'iwpriv ra0 e2p 28=%s\n'
 LAN_COMMAND_2   = 'iwpriv ra0 e2p 2A=%s\n'
 LAN_COMMAND_3   = 'iwpriv ra0 e2p 2C=%s\n'

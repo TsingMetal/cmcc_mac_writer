@@ -7,8 +7,8 @@ class DBConnector:
 
     def __init__(self):
         try:
-            conn = sqlite3.connect('sn.db')
-            self.curs = conn.cursor()
+            self.conn = sqlite3.connect('sn.db')
+            self.curs = self.conn.cursor()
             print("\nconnect database OK")
         except:
             print("\nCAN'T connect to database!")
@@ -18,15 +18,17 @@ class DBConnector:
             sys.exit(1)
 
     def get_record(self, sn):
-        self.curs.execute("select * from sn where sn='%s'" % sn)
+        self.curs.execute("SELECT * FROM sn WHERE sn='%s'" % sn)
         record = self.curs.fetchone()
         #print(record)
         return record
 
     def update(self, sn, status):
-        self.curs.execute("update sn set status='%s' \
-                where sn='%s'" % (status, sn))
-        self.curs.execute("select status from sn where sn='%s'" % sn)
+        self.curs.execute("UPDATE sn SET status='%s' \
+                WHERE sn='%s'" % (status, sn))
+        self.conn.commit() # changes need to be made by calling commit()!
+
+        self.curs.execute("SELECT STATUS FROM sn WHERE sn='%s'" % sn)
         result = self.curs.fetchone()
         if result[0] == status:
             print("update database OK")
