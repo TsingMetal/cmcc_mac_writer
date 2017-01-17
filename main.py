@@ -52,7 +52,6 @@ def main():
 
 def start():
     global tested
-
     print("\n\nTEST STARTING...\tNO. %s" % tested)
     print("\n(input 'exit' to end program)\t")
     tested += 1

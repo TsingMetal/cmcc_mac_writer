@@ -98,7 +98,7 @@ class MacWriter(Telnet, MacParser):
         self.write(b'. / LoadDefault\n')
 
     def reboot(self):
-        # the 'if' blocks should be placed in main
+        # the 2 'if' blocks should be placed in main
         if VERBOSE or LOG:      
             self.read_until(b'\r\n\r\n\r\n') # remove newlines
             text = self.read_until(b'Default').decode()
